@@ -9,17 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up(): void
-{
-    Schema::create('health_records', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('pet_id')->constrained('pets')->onDelete('cascade');
-        $table->text('description')->nullable();
-        $table->date('last_checkup')->nullable();
-        $table->text('notes')->nullable();
-        $table->timestamps();
-    });
-}
+    public function up(): void
+    {
+        Schema::create('health_records', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('pet_id')->constrained('pets')->onDelete('cascade');
+            $table->text('description')->nullable();
+            $table->date('last_checkup')->nullable();
+            $table->text('notes')->nullable();
+            $table->timestamps();
+        });
+    }
 
 
     /**

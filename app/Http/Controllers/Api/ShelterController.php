@@ -131,33 +131,32 @@ class ShelterController extends Controller
         ]);
     }
     /**
- * Get all pets from a specific room in a specific shelter.
- */
-public function getPetsFromRoom($shelterId, $roomId)
-{
-    // Patikriname ar shelter egzistuoja
-    $shelter = Shelter::find($shelterId);
-    if (!$shelter) {
-        return response()->json(['message' => 'Shelter not found'], 404);
+     * Get all pets from a specific room in a specific shelter.
+     */
+    public function getPetsFromRoom($shelterId, $roomId)
+    {
+        // Patikriname ar shelter egzistuoja
+        $shelter = Shelter::find($shelterId);
+        if (!$shelter) {
+            return response()->json(['message' => 'Shelter not found'], 404);
+        }
+
+        // Patikriname ar room egzistuoja ir priklauso šiam shelter
+        $room = Room::where('id', $roomId)
+            ->where('shelter_id', $shelterId)
+            ->with('pets')
+            ->first();
+
+        if (!$room) {
+            return response()->json(['message' => 'Room not found in this shelter'], 404);
+        }
+
+        // Grąžiname rezultatą
+        return response()->json([
+            'shelter' => $shelter->name,
+            'room' => $room->name,
+            'total_pets' => $room->pets->count(),
+            'pets' => $room->pets
+        ]);
     }
-
-    // Patikriname ar room egzistuoja ir priklauso šiam shelter
-    $room = Room::where('id', $roomId)
-                ->where('shelter_id', $shelterId)
-                ->with('pets')
-                ->first();
-
-    if (!$room) {
-        return response()->json(['message' => 'Room not found in this shelter'], 404);
-    }
-
-    // Grąžiname rezultatą
-    return response()->json([
-        'shelter' => $shelter->name,
-        'room' => $room->name,
-        'total_pets' => $room->pets->count(),
-        'pets' => $room->pets
-    ]);
-}
-
 }

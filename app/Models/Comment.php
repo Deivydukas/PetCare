@@ -21,7 +21,7 @@ class Comment extends Model
     {
         return $this->belongsTo(Pet::class);
     }
-     public function user()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

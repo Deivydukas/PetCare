@@ -10,19 +10,19 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('pets', function (Blueprint $table) {
-        $table->id();
-        $table->string('name');
-        $table->string('species');
-        $table->string('breed')->nullable();
-        $table->integer('age')->nullable();
-        $table->unsignedBigInteger('room_id');
-        $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
-        $table->enum('status', ['available','adopted'])->default('available');
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('pets', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('species');
+            $table->string('breed')->nullable();
+            $table->integer('age')->nullable();
+            $table->unsignedBigInteger('room_id');
+            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            $table->enum('status', ['available', 'adopted'])->default('available');
+            $table->timestamps();
+        });
+    }
 
 
     /**

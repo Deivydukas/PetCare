@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
@@ -15,7 +16,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6',
-            'role' => 'sometimes|string|in:user,worker,admin' // pridėta role validacija
+            'role' => 'sometimes|string|in:user,worker,admin'
         ]);
 
         $user = User::create([

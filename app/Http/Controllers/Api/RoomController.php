@@ -15,7 +15,7 @@ class RoomController extends Controller
 
     public function show($shelterId, Room $room)
     {
-        return response()->json($room); 
+        return response()->json($room);
     }
 
     public function store(Request $request, $shelterId)

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pet extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'name',
@@ -21,7 +21,7 @@ class Pet extends Model
     {
         return $this->hasMany(Comment::class);
     }
-    
+
     public function healthRecords()
     {
         return $this->hasMany(HealthRecord::class);

@@ -35,7 +35,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6', 
+            'password' => 'required|min:6',
             'adress' => 'nullable|string|max:500',
             'role' => 'in:user,worker,admin'
         ]);
@@ -43,7 +43,7 @@ class UserController extends Controller
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
-        
+
         return response()->json([
             'message' => 'User created successfully',
             'data' => $user
@@ -63,7 +63,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => 'sometimes|email|unique:users,email,'.$user->id,
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|min:6',
             'adress' => 'sometimes|string|max:500',
             'role' => 'sometimes|in:user,worker,admin'
@@ -83,7 +83,7 @@ class UserController extends Controller
     // DELETE /api/users/{id} – vartotojo pašalinimas
     public function destroy($id)
     {
-       $user = User::find($id);
+        $user = User::find($id);
 
         if (!$user) {
             return response()->json([

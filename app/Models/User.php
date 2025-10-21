@@ -36,7 +36,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-       // Patikrinti role
+    // Patikrinti role
     public function hasRole($role)
     {
         return $this->role === $role;

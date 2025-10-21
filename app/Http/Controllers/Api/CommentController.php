@@ -26,25 +26,24 @@ class CommentController extends Controller
      * Store a newly created comment for a specific pet.
      */
     public function store(Request $request)
-    {
-        {
-        $validated = $request->validate([
-            'pet_id' => 'required|exists:pets,id',
-            'user_name' => 'required|string|max:255',
-            'content' => 'required|string',
-            'parent_id' => 'nullable|exists:comments,id',
-        ]);
-          $comment = Comment::create($validated);
+    { {
+            $validated = $request->validate([
+                'pet_id' => 'required|exists:pets,id',
+                'user_name' => 'required|string|max:255',
+                'content' => 'required|string',
+                'parent_id' => 'nullable|exists:comments,id',
+            ]);
+            $comment = Comment::create($validated);
 
-         $isReply = isset($validated['parent_id']) && !empty($validated['parent_id']);
+            $isReply = isset($validated['parent_id']) && !empty($validated['parent_id']);
 
-        return response()->json([
-            'message' => $isReply
-                ? 'Reply added successfully'
-                : 'Comment added successfully',
-            'data' => $comment,
-        ], 201);
-    }
+            return response()->json([
+                'message' => $isReply
+                    ? 'Reply added successfully'
+                    : 'Comment added successfully',
+                'data' => $comment,
+            ], 201);
+        }
     }
     public function show($id)
     {
@@ -52,13 +51,11 @@ class CommentController extends Controller
 
         if (!$comment) {
             return response()->json(['error' => 'Comment not found'], 404);
-        }   
+        }
 
         return response()->json($comment);
     }
-    /**
-     * Update a specific comment.
-     */
+
     public function update(Request $request, $id)
     {
         $comment = Comment::find($id);
