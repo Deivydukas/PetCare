@@ -27,14 +27,20 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     { {
-            $validated = $request->validate([
-                'pet_id' => 'required|exists:pets,id',
-                'user_name' => 'required|string|max:255',
-                'content' => 'required|string',
-                'parent_id' => 'nullable|exists:comments,id',
-            ]);
-            $comment = Comment::create($validated);
-
+            try {
+                $validated = $request->validate([
+                    'pet_id' => 'required|exists:pets,id',
+                    'user_name' => 'required|string|max:255',
+                    'content' => 'required|string',
+                    'parent_id' => 'nullable|exists:comments,id',
+                ]);
+                $comment = Comment::create($validated);
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                return response()->json([
+                    'error' => 'Invalid input data',
+                    'details' => $e->errors()
+                ], 422);
+            }
             $isReply = isset($validated['parent_id']) && !empty($validated['parent_id']);
 
             return response()->json([

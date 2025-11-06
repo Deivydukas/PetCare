@@ -4,11 +4,12 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'password',
         'adress',
         'role',
+        'shelter_id',
     ];
 
     /**
@@ -36,9 +38,25 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    // Patikrinti role
-    public function hasRole($role)
+    // // Patikrinti role
+    // public function hasRole($role)
+    // {
+    //     return $this->role === $role;
+    // }
+    public function getJWTIdentifier()
     {
-        return $this->role === $role;
+        return $this->getKey(); // grąžina user id
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [
+            'role' => $this->role,
+            'shelter_id' => $this->shelter_id,
+        ];
+    }
+    public function worksAtShelter($shelterId)
+    {
+        return $this->role === 'worker' && $this->shelter_id == $shelterId;
     }
 }

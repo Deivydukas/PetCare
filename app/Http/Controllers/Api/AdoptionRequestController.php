@@ -16,13 +16,19 @@ class AdoptionRequestController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'pet_id' => 'required|exists:pets,id',
-            'applicant_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'status' => 'in:pending,approved,rejected',
-        ]);
-
+        try {
+            $data = $request->validate([
+                'pet_id' => 'required|exists:pets,id',
+                'applicant_name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'status' => 'in:pending,approved,rejected',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        }
         $requestEntry = AdoptionRequest::create($data);
         return response()->json($requestEntry, 201);
     }

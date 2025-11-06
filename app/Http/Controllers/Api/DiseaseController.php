@@ -5,40 +5,90 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Disease;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
 
 class DiseaseController extends Controller
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        return Disease::with('healthRecord')->get();
+        try {
+            $diseases = Disease::with('healthRecord')->get();
+            return response()->json($diseases, 200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'health_record_id' => 'required|exists:health_records,id',
-            'name' => 'required|string|max:255',
-            'treatment' => 'nullable|string',
-        ]);
+        try {
+            $data = $request->validate([
+                'health_record_id' => 'required|exists:health_records,id',
+                'name' => 'required|string|max:255',
+                'treatment' => 'nullable|string',
+            ]);
 
-        $disease = Disease::create($data);
-        return response()->json($disease, 201);
+            $disease = Disease::create($data);
+            return response()->json($disease, 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
     }
 
-    public function show(Disease $disease)
+    public function show(Disease $disease): JsonResponse
     {
-        return $disease->load('healthRecord');
+        try {
+            return response()->json($disease->load('healthRecord'), 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Disease not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
     }
 
-    public function update(Request $request, Disease $disease)
+    public function update(Request $request, Disease $disease): JsonResponse
     {
-        $disease->update($request->all());
-        return response()->json($disease, 200);
+        try {
+            $data = $request->validate([
+                'health_record_id' => 'sometimes|exists:health_records,id',
+                'name' => 'sometimes|string|max:255',
+                'treatment' => 'nullable|string',
+            ]);
+
+            $disease->update($data);
+            return response()->json($disease, 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
     }
 
-    public function destroy(Disease $disease)
+    public function destroy(Disease $disease): JsonResponse
     {
-        $disease->delete();
-        return response()->json(['message' => 'Disease deleted'], 204);
+        try {
+            $disease->delete();
+            return response()->json(['message' => 'Disease deleted'], 200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    private function errorResponse(\Exception $e): JsonResponse
+    {
+        return response()->json([
+            'error' => 'Server error',
+            'message' => $e->getMessage()
+        ], 500);
     }
 }

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -32,14 +34,25 @@ class UserController extends Controller
     // POST /api/users – naujo vartotojo kūrimas
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'adress' => 'nullable|string|max:500',
-            'role' => 'in:user,worker,admin'
-        ]);
-
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6',
+                'address' => 'nullable|string|max:500',
+                'role' => 'in:user,worker,admin',
+                'shelter_id' => [
+                    Rule::requiredIf(fn() => $request->input('role') === 'worker'), // required only for workers
+                    'nullable',
+                    'exists:shelters,id', // must exist in shelters table
+                ],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        }
         $validated['password'] = Hash::make($validated['password']);
 
         $user = User::create($validated);
@@ -65,8 +78,12 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|min:6',
-            'adress' => 'sometimes|string|max:500',
-            'role' => 'sometimes|in:user,worker,admin'
+            'address' => 'sometimes|string|max:500',
+            'role' => 'sometimes|in:user,worker,admin',
+            'shelter_id' => [
+                Rule::requiredIf(fn() => $request->input('role') === 'worker'), // required only for workers
+                'exists:shelters,id', // must exist in shelters table
+            ],
         ]);
 
         if (isset($validated['password'])) {

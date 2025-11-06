@@ -17,22 +17,23 @@ class UserSeeder extends Seeder
             'name' => 'Naudotojas',
             'email' => 'naudotojas@inbox.lt',
             'password' => bcrypt('slaptazodis'),
-            'adress' => 'Vilnius, Lithuania',
+            'address' => 'Vilnius, Lithuania',
             'role' => 'user',
         ]);
         User::create([
             'name' => 'Administratorius',
             'email' => 'adminas@inbox.lt',
             'password' => bcrypt('slaptazodis'),
-            'adress' => 'Vilnius, Lithuania',
+            'address' => 'Vilnius, Lithuania',
             'role' => 'admin',
         ]);
         User::create([
             'name' => 'Darbuotojas',
             'email' => 'darbuotojas@inbox.lt',
             'password' => bcrypt('slaptazodis'),
-            'adress' => 'Vilnius, Lithuania',
+            'address' => 'Vilnius, Lithuania',
             'role' => 'worker',
+            'shelter_id' => 1,
         ]);
     }
 }

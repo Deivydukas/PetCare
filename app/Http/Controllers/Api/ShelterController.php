@@ -6,157 +6,166 @@ use App\Http\Controllers\Controller;
 use App\Models\Shelter;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 
 class ShelterController extends Controller
 {
-    /**
-     * Display a listing of all shelters with their rooms and pets.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        $shelters = Shelter::with('rooms.pets')->get();
-        return response()->json($shelters);
+        try {
+            $shelters = Shelter::with('rooms.pets')->get();
+            return response()->json($shelters, 200);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
     }
 
-    /**
-     * Store a newly created shelter in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
+                'phone' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:255',
+            ]);
 
-        $shelter = Shelter::create($validated);
+            $shelter = Shelter::create($validated);
 
+            return response()->json([
+                'message' => 'Shelter created successfully',
+                'data' => $shelter
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function show($id): JsonResponse
+    {
+        try {
+            $shelter = Shelter::with('rooms.pets')->findOrFail($id);
+            return response()->json($shelter, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $shelter = Shelter::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'address' => 'sometimes|string|max:255',
+                'phone' => 'nullable|string|max:50',
+                'email' => 'nullable|email|max:255',
+            ]);
+
+            $shelter->update($validated);
+
+            return response()->json([
+                'message' => 'Shelter updated successfully',
+                'data' => $shelter
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $shelter = Shelter::findOrFail($id);
+            $shelter->delete();
+
+            return response()->json(['message' => 'Shelter deleted successfully'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function getRooms($shelterId): JsonResponse
+    {
+        try {
+            $shelter = Shelter::with('rooms.pets')->findOrFail($shelterId);
+
+            return response()->json([
+                'shelter' => $shelter->name,
+                'rooms' => $shelter->rooms
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function getPets($shelterId): JsonResponse
+    {
+        try {
+            $shelter = Shelter::with('rooms.pets')->findOrFail($shelterId);
+            $pets = $shelter->rooms->flatMap->pets;
+
+            return response()->json([
+                'shelter' => $shelter->name,
+                'total_pets' => $pets->count(),
+                'pets' => $pets->values()
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    public function getPetsFromRoom($shelterId, $roomId): JsonResponse
+    {
+        try {
+            $shelter = Shelter::findOrFail($shelterId);
+
+            $room = Room::where('id', $roomId)
+                ->where('shelter_id', $shelterId)
+                ->with('pets')
+                ->firstOrFail();
+
+            return response()->json([
+                'shelter' => $shelter->name,
+                'room' => $room->name,
+                'total_pets' => $room->pets->count(),
+                'pets' => $room->pets
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Shelter or Room not found'], 404);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e);
+        }
+    }
+
+    private function errorResponse(\Exception $e): JsonResponse
+    {
         return response()->json([
-            'message' => 'Shelter created successfully',
-            'data' => $shelter
-        ], 201);
-    }
-
-    /**
-     * Display the specified shelter with its rooms and pets.
-     */
-    public function show($id)
-    {
-        $shelter = Shelter::with('rooms.pets')->find($id);
-
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        return response()->json($shelter);
-    }
-
-    /**
-     * Update the specified shelter in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        $shelter = Shelter::find($id);
-
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'address' => 'sometimes|string|max:255',
-            'phone' => 'nullable|string|max:50',
-            'email' => 'nullable|email|max:255',
-        ]);
-
-        $shelter->update($validated);
-
-        return response()->json([
-            'message' => 'Shelter updated successfully',
-            'data' => $shelter
-        ]);
-    }
-
-    /**
-     * Remove the specified shelter from storage.
-     */
-    public function destroy($id)
-    {
-        $shelter = Shelter::find($id);
-
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        $shelter->delete();
-
-        return response()->json(['message' => 'Shelter deleted successfully']);
-    }
-
-    /**
-     * Get all rooms in a specific shelter.
-     */
-    public function getRooms($shelterId)
-    {
-        $shelter = Shelter::with('rooms.pets')->find($shelterId);
-
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        return response()->json([
-            'shelter' => $shelter->name,
-            'rooms' => $shelter->rooms
-        ]);
-    }
-
-    /**
-     * Get all pets across all rooms in a shelter.
-     */
-    public function getPets($shelterId)
-    {
-        $shelter = Shelter::with('rooms.pets')->find($shelterId);
-
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        $pets = $shelter->rooms->flatMap->pets;
-
-        return response()->json([
-            'shelter' => $shelter->name,
-            'total_pets' => $pets->count(),
-            'pets' => $pets->values()
-        ]);
-    }
-    /**
-     * Get all pets from a specific room in a specific shelter.
-     */
-    public function getPetsFromRoom($shelterId, $roomId)
-    {
-        // Patikriname ar shelter egzistuoja
-        $shelter = Shelter::find($shelterId);
-        if (!$shelter) {
-            return response()->json(['message' => 'Shelter not found'], 404);
-        }
-
-        // Patikriname ar room egzistuoja ir priklauso šiam shelter
-        $room = Room::where('id', $roomId)
-            ->where('shelter_id', $shelterId)
-            ->with('pets')
-            ->first();
-
-        if (!$room) {
-            return response()->json(['message' => 'Room not found in this shelter'], 404);
-        }
-
-        // Grąžiname rezultatą
-        return response()->json([
-            'shelter' => $shelter->name,
-            'room' => $room->name,
-            'total_pets' => $room->pets->count(),
-            'pets' => $room->pets
-        ]);
+            'error' => 'Server error',
+            'message' => $e->getMessage()
+        ], 500);
     }
 }

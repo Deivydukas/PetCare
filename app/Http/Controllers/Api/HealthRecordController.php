@@ -15,12 +15,19 @@ class HealthRecordController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'pet_id' => 'required|exists:pets,id',
-            'description' => 'nullable|string',
-            'last_checkup' => 'nullable|date',
-            'notes' => 'nullable|string',
-        ]);
+        try {
+            $data = $request->validate([
+                'pet_id' => 'required|exists:pets,id',
+                'description' => 'nullable|string',
+                'last_checkup' => 'nullable|date',
+                'notes' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        }
 
         $record = HealthRecord::create($data);
         return response()->json($record, 201);

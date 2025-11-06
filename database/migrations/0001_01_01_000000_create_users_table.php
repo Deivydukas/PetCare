@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('adress')->nullable();
+            $table->string('address')->nullable();
             $table->string('role')->default('user'); // arba null
+            $table->unsignedBigInteger('shelter_id')->nullable();
+            $table->foreign('shelter_id')->references('id')->on('shelters')->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

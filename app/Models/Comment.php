@@ -5,6 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
+/**
+ * @OA\Schema(
+ *     schema="Comment",
+ *     required={"pet_id","user_name","content"},
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="pet_id", type="integer"),
+ *     @OA\Property(property="user_name", type="string"),
+ *     @OA\Property(property="content", type="string"),
+ *     @OA\Property(property="parent_id", type="integer", nullable=true)
+ * )
+ */
+
 class Comment extends Model
 {
     use HasFactory;
