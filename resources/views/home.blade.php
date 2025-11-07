@@ -9,11 +9,11 @@
 <body>
     <h1>Pet List</h1>
 
-    <ul>
+    <!-- <ul>
         @foreach ($pets as $pet)
         <li>{{ $pet->name }}</li>
         @endforeach
-    </ul>
+    </ul> -->
 </body>
 
 </html>
