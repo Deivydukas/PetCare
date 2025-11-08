@@ -6,14 +6,14 @@
     <title>PetCare</title>
 </head>
 
-<body>
-    <h1>Pet List</h1>
+<h1>Pets List</h1>
 
-    <ul>
-        @foreach ($pets as $pet)
-        <li>{{ $pet->name }}</li>
-        @endforeach
-    </ul>
-</body>
+<ul>
+    @forelse ($pets as $pet)
+    <li>{{ $pet->name }}</li>
+    @empty
+    <li>No pets found</li>
+    @endforelse
+</ul>
 
 </html>
