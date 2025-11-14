@@ -8,11 +8,14 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -27,7 +30,9 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'shelter_id',
     ];
-
+    // protected $attributes = [
+    //     'status' => 'pending',
+    // ];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -58,5 +63,15 @@ class User extends Authenticatable implements JWTSubject
     public function worksAtShelter($shelterId)
     {
         return $this->role === 'worker' && $this->shelter_id == $shelterId;
+    }
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => Hash::make($value)
+        );
+    }
+    public function pet()
+    {
+        return $this->belongsTo(Pet::class);
     }
 }

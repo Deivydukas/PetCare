@@ -15,10 +15,57 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'jwt.refresh' => \App\Http\Middleware\RefreshJwtToken::class,
-            // 'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            // 'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'jwt.auth' => \App\Http\Middleware\AuthenticateJwt::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // JWT expired
+        $exceptions->render(function (
+            Tymon\JWTAuth\Exceptions\TokenExpiredException $e,
+            Illuminate\Http\Request $request
+        ) {
+            return response()->json([
+                'error' => 'Token expired'
+            ], 401);
+        });
+
+        // JWT invalid
+        $exceptions->render(function (
+            Tymon\JWTAuth\Exceptions\TokenInvalidException $e,
+            Illuminate\Http\Request $request
+        ) {
+            return response()->json([
+                'error' => 'Token invalid'
+            ], 401);
+        });
+
+        // No token / malformed
+        $exceptions->render(function (
+            Tymon\JWTAuth\Exceptions\JWTException $e,
+            Illuminate\Http\Request $request
+        ) {
+            return response()->json([
+                'error' => 'Token missing or malformed'
+            ], 401);
+        });
+
+        // Default auth failure
+        $exceptions->render(function (
+            Illuminate\Auth\AuthenticationException $e,
+            Illuminate\Http\Request $request
+        ) {
+            return response()->json([
+                'error' => 'Unauthenticated'
+            ], 401);
+        });
+
+        // Fallback: UnauthorizedHttpException
+        $exceptions->render(function (
+            Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e,
+            Illuminate\Http\Request $request
+        ) {
+            return response()->json([
+                'error' => 'Invalid or expired token'
+            ], 401);
+        });
     })->create();

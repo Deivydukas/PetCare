@@ -52,6 +52,11 @@ class UserController extends Controller
                 'error' => 'Invalid input data',
                 'details' => $e->errors()
             ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to validate input data',
+                'details' => $e->getMessage()
+            ], 500);
         }
         $validated['password'] = Hash::make($validated['password']);
 

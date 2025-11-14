@@ -31,9 +31,7 @@ class ShelterController extends Controller
                 'phone' => 'nullable|string|max:50',
                 'email' => 'nullable|email|max:255',
             ]);
-
             $shelter = Shelter::create($validated);
-
             return response()->json([
                 'message' => 'Shelter created successfully',
                 'data' => $shelter
@@ -51,7 +49,7 @@ class ShelterController extends Controller
     public function show($id): JsonResponse
     {
         try {
-            $shelter = Shelter::with('rooms.pets')->findOrFail($id);
+            $shelter = Shelter::with('rooms')->findOrFail($id);
             return response()->json($shelter, 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Shelter not found'], 404);
@@ -90,7 +88,7 @@ class ShelterController extends Controller
         }
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy(Request $request, $id): JsonResponse
     {
         try {
             $shelter = Shelter::findOrFail($id);

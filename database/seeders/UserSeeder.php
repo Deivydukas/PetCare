@@ -16,21 +16,21 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Naudotojas',
             'email' => 'naudotojas@inbox.lt',
-            'password' => bcrypt('slaptazodis'),
+            'password' => 'slaptazodis',
             'address' => 'Vilnius, Lithuania',
             'role' => 'user',
         ]);
         User::create([
             'name' => 'Administratorius',
             'email' => 'adminas@inbox.lt',
-            'password' => bcrypt('slaptazodis'),
+            'password' => 'slaptazodis',
             'address' => 'Vilnius, Lithuania',
             'role' => 'admin',
         ]);
         User::create([
             'name' => 'Darbuotojas',
             'email' => 'darbuotojas@inbox.lt',
-            'password' => bcrypt('slaptazodis'),
+            'password' => 'slaptazodis',
             'address' => 'Vilnius, Lithuania',
             'role' => 'worker',
             'shelter_id' => 1,

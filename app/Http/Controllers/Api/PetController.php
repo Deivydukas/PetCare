@@ -15,9 +15,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class PetController extends Controller
 {
-    /**
-     * List all pets in a room
-     */
     public function index($roomId): JsonResponse
     {
         try {
@@ -28,14 +25,10 @@ class PetController extends Controller
         }
     }
 
-    /**
-     * Store a new pet
-     */
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
         try {
-            $user = JWTAuth::parseToken()->authenticate();
-
             $data = $request->validate([
                 'name' => 'required|string|max:255',
                 'species' => 'required|string|max:255',
@@ -77,27 +70,32 @@ class PetController extends Controller
         }
     }
 
-    /**
-     * Show a single pet
-     */
-    public function show(Pet $pet): JsonResponse
+    public function show(Int $id): JsonResponse
     {
         try {
-            return response()->json(new PetResource($pet), 200);
+            $pet = Pet::findOrFail($id);
+
+            return response()->json([
+                'pet' => $pet
+            ], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Pet not found'], 404);
+            return response()->json([
+                'error' => 'Pet not found'
+            ], 404);
         } catch (\Exception $e) {
-            return $this->errorResponse($e);
+            return response()->json([
+                'error' => 'Server error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
-    /**
-     * Update a pet
-     */
-    public function update(Request $request, Pet $pet): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
+        $user = $request->user();
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            $pet = Pet::find($id);
+
             $room = Room::findOrFail($pet->room_id);
 
             // Check permissions
@@ -119,19 +117,19 @@ class PetController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['error' => 'Invalid input data', 'details' => $e->errors()], 422);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Room not found'], 404);
+            return response()->json(['error' => 'Pet or room not found'], 404);
         } catch (\Exception $e) {
             return $this->errorResponse($e);
         }
     }
 
-    /**
-     * Delete a pet
-     */
-    public function destroy(Pet $pet): JsonResponse
+    public function destroy($id): JsonResponse
     {
+        $user = request()->user();
+
         try {
-            $user = JWTAuth::parseToken()->authenticate();
+            $pet = Pet::findOrFail($id);
+
             $room = Room::findOrFail($pet->room_id);
 
             // Check permissions
@@ -143,20 +141,17 @@ class PetController extends Controller
 
             return response()->json(['message' => 'Pet deleted successfully'], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Pet or Room not found'], 404);
+            return response()->json(['error' => 'Pet or room not found'], 404);
         } catch (\Exception $e) {
             return $this->errorResponse($e);
         }
     }
 
-    /**
-     * Upload pet photo
-     */
     public function uploadPhoto(Request $request, $petId): JsonResponse
     {
+        $user = $request->user();
         try {
             $pet = Pet::findOrFail($petId);
-            $user = JWTAuth::parseToken()->authenticate();
             $room = Room::findOrFail($pet->room_id);
 
             // Check permissions
@@ -177,26 +172,23 @@ class PetController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['error' => 'Invalid input data', 'details' => $e->errors()], 422);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Pet not found'], 404);
+            return response()->json(['error' => 'Pet or room not found'], 404);
         } catch (\Exception $e) {
             return $this->errorResponse($e);
         }
     }
 
-    /**
-     * Centralized shelter access check
-     */
     private function checkShelterAccess($user, $shelterId): ?JsonResponse
     {
         $shelterId = (int) $shelterId;
 
         if ($user->role === 'admin') {
-            return null; // Admin can access everything
+            return null;
         }
 
         if ($user->role === 'worker') {
             if ($user->shelter_id === $shelterId) {
-                return null; // Worker can access their shelter
+                return null;
             }
             return response()->json(['error' => 'Forbidden: Not your shelter'], 403);
         }
@@ -204,9 +196,6 @@ class PetController extends Controller
         return response()->json(['error' => 'Forbidden: Insufficient permissions'], 403);
     }
 
-    /**
-     * JSON response for server errors
-     */
     private function errorResponse(\Exception $e): JsonResponse
     {
         return response()->json([
