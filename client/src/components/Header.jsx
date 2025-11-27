@@ -32,7 +32,7 @@ export default function Header() {
 
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} className="h-14 rounded-full" alt="PetCare Logo" />
-          <h1 className="text-3xl font-bold text-gray-800">PetCare</h1>
+          <h1 className="text-8xl font-quicksand text-gray-800">PetCare</h1>
         </Link>
 
         {/* Guest Links */}

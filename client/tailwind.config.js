@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}", // include all React components
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        heading: ['Quicksand', 'sans-serif'],
+        body: ['Lato', 'sans-serif'],
+     },
+    },
   },
   plugins: [],
 };
