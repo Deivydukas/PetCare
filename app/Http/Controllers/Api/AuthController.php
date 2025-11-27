@@ -12,6 +12,7 @@ use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
@@ -74,11 +75,20 @@ class AuthController extends Controller
 
             $user = JWTAuth::user();
 
+            $refreshToken = JWTAuth::claims(['type' => 'refresh'])->fromUser($user);
+
+            // Cookies
+            $accessCookie = cookie('access_token', $token, 60, '/', 'localhost', false, true);
+            $refreshCookie = cookie('refresh_token', $refreshToken, 60 * 24 * 7, '/', 'localhost', false, true);
+
+
             return response()->json([
                 'message' => 'Login successful',
-                'token'   => $token,
+                'access_token'   => $token,
+                'email' => $user->email,
                 'role'    => $user->role,
-            ]);
+            ])->withCookie($accessCookie)
+                ->withCookie($refreshCookie);
         } catch (TokenExpiredException $e) {
             return response()->json(['error' => 'Token expired'], 401);
         } catch (TokenInvalidException $e) {
@@ -97,7 +107,12 @@ class AuthController extends Controller
             JWTAuth::parseToken()->authenticate();
             JWTAuth::invalidate(JWTAuth::getToken());
 
-            return response()->json(['message' => 'Logged out successfully'], 200);
+            $forgetAccess = Cookie::forget('access_token', '/', 'localhost');
+            $forgetRefresh = Cookie::forget('refresh_token', '/', 'localhost');
+
+
+
+            return response()->json(['message' => 'Logged out successfully'], 200)->withCookie($forgetAccess)->withCookie($forgetRefresh);
         } catch (TokenInvalidException $e) {
             return response()->json(['error' => 'Invalid token'], 401);
         } catch (JWTException $e) {
@@ -113,21 +128,50 @@ class AuthController extends Controller
     /**
      * Refresh JWT token
      */
-    public function refresh()
+    public function refresh(Request $request): JsonResponse
     {
+        $refreshToken = $request->cookie('refresh_token');
+
+        if (!$refreshToken) {
+            return response()->json(['error' => 'No refresh token'], 401);
+        }
+
         try {
-            $newToken = JWTAuth::refresh(JWTAuth::getToken());
+            $payload = JWTAuth::setToken($refreshToken)->getPayload();
+
+            // Optional: ensure it’s a refresh token
+            if ($payload->get('type') !== 'refresh') {
+                return response()->json(['error' => 'Invalid refresh token'], 401);
+            }
+
+            $user = JWTAuth::authenticate($refreshToken);
+
+            // Issue new access token
+            $newAccessToken = JWTAuth::fromUser($user);
 
             return response()->json([
-                'message' => 'Token refreshed',
-                'token'   => $newToken
-            ]);
-        } catch (TokenExpiredException $e) {
-            return response()->json(['error' => 'Token expired'], 401);
-        } catch (TokenInvalidException $e) {
-            return response()->json(['error' => 'Invalid token'], 401);
+                'message' => 'Access token refreshed',
+                'access_token' => $newAccessToken
+            ])->withCookie(cookie('refresh_token', $refreshToken, 60, '/', 'localhost', false, true));
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Token missing or not refreshable'], 400);
+            return response()->json(['error' => 'Invalid or expired refresh token'], 401);
+        }
+    }
+    // --- Current user info ---
+    public function me(Request $request): JsonResponse
+    {
+        $accessToken = $request->cookie('access_token');
+        if (!$accessToken) return response()->json(['error' => 'No access token'], 401);
+
+        try {
+            $user = JWTAuth::setToken($accessToken)->authenticate();
+            return response()->json([
+                'email' => $user->email,
+                'role' => $user->role,
+                'name' => $user->name
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid token'], 401);
         }
     }
 }

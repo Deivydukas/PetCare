@@ -31,4 +31,8 @@ class Pet extends Model
     {
         return $this->hasMany(AdoptionRequest::class);
     }
+    public function photos()
+    {
+        return $this->hasMany(PetPhoto::class);
+    }
 }

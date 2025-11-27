@@ -5,6 +5,13 @@ export default function PetList({ pets }) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {pets.map((pet) => (
         <div key={pet.id} className="bg-white rounded shadow p-4 hover:shadow-lg transition">
+          {pet.photos?.length > 0 && (
+            <img
+              src={pet.photos[0].url}
+              alt={pet.name}
+              className="w-full h-48 object-cover rounded mb-2"
+            />
+          )}
           <h2 className="font-bold text-xl">{pet.name}</h2>
           <p>Species: {pet.species}</p>
           {pet.breed && <p>Breed: {pet.breed}</p>}

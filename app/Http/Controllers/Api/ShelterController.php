@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PetResource;
 use App\Models\Shelter;
 use App\Models\Room;
 use Illuminate\Http\Request;
@@ -46,17 +47,17 @@ class ShelterController extends Controller
         }
     }
 
-    public function show($id): JsonResponse
+    public function show($id)
     {
-        try {
-            $shelter = Shelter::with('rooms')->findOrFail($id);
-            return response()->json($shelter, 200);
-        } catch (ModelNotFoundException $e) {
+        $shelter = Shelter::find($id);
+
+        if (!$shelter) {
             return response()->json(['error' => 'Shelter not found'], 404);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e);
         }
+
+        return response()->json($shelter);
     }
+
 
     public function update(Request $request, $id): JsonResponse
     {
@@ -104,30 +105,30 @@ class ShelterController extends Controller
 
     public function getRooms($shelterId): JsonResponse
     {
-        try {
-            $shelter = Shelter::with('rooms.pets')->findOrFail($shelterId);
+        $shelter = Shelter::with('rooms')->find($shelterId);
 
+        if (!$shelter) {
             return response()->json([
-                'shelter' => $shelter->name,
-                'rooms' => $shelter->rooms
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Shelter not found'], 404);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e);
+                'message' => 'Shelter not found'
+            ], 404);
         }
+
+        return response()->json([
+            'shelter' => $shelter->name,
+            'rooms' => $shelter->rooms
+        ]);
     }
 
     public function getPets($shelterId): JsonResponse
     {
         try {
-            $shelter = Shelter::with('rooms.pets')->findOrFail($shelterId);
+            $shelter = Shelter::with('rooms.pets.photos')->findOrFail($shelterId);
             $pets = $shelter->rooms->flatMap->pets;
 
             return response()->json([
                 'shelter' => $shelter->name,
                 'total_pets' => $pets->count(),
-                'pets' => $pets->values()
+                'pets' => PetResource::collection($pets),
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Shelter not found'], 404);

@@ -1,5 +1,6 @@
 <?php
 
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ShelterController;
 use App\Http\Controllers\Api\RoomController;
@@ -17,7 +18,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
 Route::get('/shelters',                       [ShelterController::class, 'index']);
-// Route::get('/shelters/{shelter}/rooms/{room}', [ShelterController::class, 'show']);  
+Route::get('/shelters/{shelter}/rooms', [ShelterController::class, 'getRooms']);
+Route::get('/shelters/{shelter}',            [ShelterController::class, 'show']);
 Route::get('/shelters/{shelter}/rooms',       [RoomController::class, 'index']);
 Route::get('/shelters/{shelter}/rooms/{room}', [RoomController::class, 'show']);
 // Route::get('/rooms/{room}/pets',              [PetController::class, 'index']);
@@ -29,11 +31,11 @@ Route::get('/diseases',                       [DiseaseController::class, 'index'
 Route::get('/comments/pet/{id}',              [CommentController::class, 'index']);
 // Route::get('/pets/{pet}/photos',              [PetController::class, 'index']);
 
-Route::group(['middleware' => 'jwt.auth'], function () {
+Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
     Route::middleware('role:user,worker,admin')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
-
+        Route::get('/me',     [AuthController::class, 'me']);
         // Adoption requests
         Route::post('/adoptions',                [AdoptionRequestController::class, 'store']);
         Route::get('/adoptions/{adoption}',      [AdoptionRequestController::class, 'show']);

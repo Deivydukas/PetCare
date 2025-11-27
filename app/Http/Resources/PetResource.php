@@ -23,6 +23,11 @@ class PetResource extends JsonResource
             'status' => $this->status,
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
+            'photos' => $this->photos->map(fn($p) => [
+                'id' => $p->id,
+                'file_path' => $p->file_path,
+                'url' => asset('storage/' . $p->file_path),
+            ]),
         ];
     }
 }

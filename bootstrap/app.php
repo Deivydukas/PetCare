@@ -13,9 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
+            $middleware->append(\Illuminate\Http\Middleware\HandleCors::class),
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'jwt.refresh' => \App\Http\Middleware\RefreshJwtToken::class,
             'jwt.auth' => \App\Http\Middleware\AuthenticateJwt::class,
+            'jwt.cookie' => \App\Http\Middleware\ParseJwtCookie::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -18,7 +18,7 @@ class PetController extends Controller
     public function index($roomId): JsonResponse
     {
         try {
-            $pets = Pet::where('room_id', $roomId)->get();
+            $pets = Pet::with('photos')->where('room_id', $roomId)->get();
             return response()->json(['pets' => $pets], 200);
         } catch (\Exception $e) {
             return $this->errorResponse($e);
@@ -168,7 +168,13 @@ class PetController extends Controller
                 'file_path' => $path
             ]);
 
-            return response()->json(['message' => 'Photo uploaded successfully', 'data' => $photo], 201);
+            return response()->json([
+                'message' => 'Photo uploaded successfully',
+                'data' => [
+                    'id' => $photo->id,
+                    'url' => asset('storage/' . $photo->file_path)
+                ]
+            ], 201);
         } catch (ValidationException $e) {
             return response()->json(['error' => 'Invalid input data', 'details' => $e->errors()], 422);
         } catch (ModelNotFoundException $e) {
