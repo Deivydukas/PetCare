@@ -9,6 +9,9 @@ import WorkerDashboard from "./pages/WorkerDashboard";
 import ShelterRooms from "./pages/ShelterRooms";
 import Register from "./pages/Register";
 import RoomPets from "./pages/RoomPets";
+import UsersPage from "./pages/UsersPage";
+import SheltersPage from "./pages/SheltersPage";
+import PetsPage from "./pages/PetsPage";
 
 export default function App() {
   return (
@@ -23,11 +26,21 @@ export default function App() {
                 <AdminDashboard />
               </PrivateRoute>
             } />
-          <Route path="/worker" element={
-            <PrivateRoute roleRequired="worker">
-              <WorkerDashboard />
-            </PrivateRoute>
-          } />
+            <Route path="/admin/users" element={
+              <PrivateRoute roleRequired="admin">
+                <UsersPage />
+              </PrivateRoute>
+            } />
+            <Route path="/admin/shelters" element={
+              <PrivateRoute roleRequired="admin">
+                <SheltersPage/>
+              </PrivateRoute>
+            } />
+            <Route path="/admin/pets" element={
+              <PrivateRoute roleRequired="admin">
+                <PetsPage/>
+              </PrivateRoute>
+            } />
            <Route path="/shelters/:id" element={<ShelterRooms />} />
            <Route path="/register" element={<Register />} />
            <Route path="/rooms/:roomId/pets" element={<RoomPets />} />

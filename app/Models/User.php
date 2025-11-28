@@ -70,8 +70,8 @@ class User extends Authenticatable implements JWTSubject
             set: fn($value) => Hash::make($value)
         );
     }
-    public function pet()
+    public function pets()
     {
-        return $this->belongsTo(Pet::class);
+        return $this->hasMany(Pet::class);
     }
 }

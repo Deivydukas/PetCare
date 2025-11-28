@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AdoptionRequestController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\AdminController;
 
 // --- Public Access (guest) ---
 Route::post('refresh', [AuthController::class, 'refresh']);
@@ -48,7 +49,7 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
         Route::delete('/comments/{id}',          [CommentController::class, 'destroy']);
 
         // User account
-        Route::put('/users/{id}',                [UserController::class, 'update']);
+        // Route::put('/users/{id}',                [UserController::class, 'update']);
     });
 
     Route::middleware('role:worker,admin')->group(function () {
@@ -82,12 +83,14 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
         Route::get('/users',                 [UserController::class, 'index']);
         Route::post('/users',                [UserController::class, 'store']);
         Route::delete('/users/{id}',         [UserController::class, 'destroy']);
-
+        Route::put('/users/{id}',     [UserController::class, 'update']);
         // Adoption moderation
         Route::put('/adoptions/{adoption}/review', [AdoptionRequestController::class, 'review']);
 
         // Moderation tools
         Route::delete('/comments/{id}/force',      [CommentController::class, 'forceDelete']);
         Route::put('/users/{id}/role',             [UserController::class, 'changeRole']);
+        Route::get('/admin/pets', [AdminController::class, 'allPets']);
+        Route::get('/admin/stats', [AdminController::class, 'stats']);
     });
 });

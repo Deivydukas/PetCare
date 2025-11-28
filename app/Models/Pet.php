@@ -35,4 +35,12 @@ class Pet extends Model
     {
         return $this->hasMany(PetPhoto::class);
     }
+    public function room()
+    {
+        return $this->belongsTo(Room::class);
+    }
+    public function shelter()
+    {
+        return $this->belongsToThrough(Shelter::class);
+    }
 }

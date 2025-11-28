@@ -68,7 +68,7 @@ class PetController extends Controller
 
             return response()->json([
                 'message' => 'Pet created successfully',
-                'pet' => $pet
+                'pet' => $pet->load('room.shelter')
             ], 201);
         } catch (ValidationException $e) {
             return response()->json(['error' => 'Invalid input data', 'details' => $e->errors()], 422);
@@ -118,9 +118,17 @@ class PetController extends Controller
                 'breed' => 'nullable|string|max:255',
                 'age' => 'nullable|integer',
                 'status' => 'in:available,adopted',
+                'room_id' => 'nullable|exists:rooms,id',
             ]);
 
-            $pet->update($data);
+            // If room_id is provided, update it
+            if (isset($data['room_id'])) {
+                $room = Room::findOrFail($data['room_id']);
+                $pet->room_id = $room->id;
+            }
+
+            $pet->fill($data);
+            $pet->save();
 
             return response()->json(['message' => 'Pet updated successfully', 'pet' => new PetResource($pet)], 200);
         } catch (ValidationException $e) {
