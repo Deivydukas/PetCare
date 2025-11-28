@@ -32,17 +32,17 @@ export default function Header() {
 
         <Link to="/" className="flex items-center gap-3">
           <img src={logo} className="h-14 rounded-full" alt="PetCare Logo" />
-          <h1 className="text-8xl font-quicksand text-gray-800">PetCare</h1>
+          <h1 className="text-4xl font-quicksand text-gray-800">PetCare</h1>
         </Link>
 
         {/* Guest Links */}
         {!user && (
           <nav className="hidden md:flex gap-4">
-            <Link className="flex items-center gap-2 font-semibold hover:text-blue-600" to="/login">
+            <Link className="flex font-quicksand items-center gap-2 font-semibold hover:text-blue-600" to="/login">
               <FaSignInAlt />
               Login
             </Link>
-            <Link className="flex items-center gap-2 font-semibold hover:text-blue-600" to="/register">
+            <Link className="flex font-quicksand items-center gap-2 font-semibold hover:text-blue-600" to="/register">
               <FaUser />
               Register
             </Link>
@@ -64,7 +64,8 @@ export default function Header() {
               <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-xl w-48">
                 <Link
                   to="/profile"
-                  className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100"
+                  className="flex
+                  font-quicksand items-center gap-2 px-4 py-3 hover:bg-gray-100"
                 >
                   <FaCog />
                   Settings
@@ -72,7 +73,7 @@ export default function Header() {
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 w-full text-left"
+                  className="flex font-quicksand items-center gap-2 px-4 py-3 hover:bg-gray-100 w-full text-left"
                 >
                   <FaSignOutAlt />
                   Logout

@@ -18,12 +18,21 @@ class PetController extends Controller
     public function index($roomId): JsonResponse
     {
         try {
-            $pets = Pet::with('photos')->where('room_id', $roomId)->get();
+            $pets = Pet::with('photos')->where('room_id', $roomId)->get()->map(function ($pet) {
+                // Add 'url' to each photo
+                $pet->photos->transform(function ($photo) {
+                    $photo->url = asset('storage/' . $photo->file_path);
+                    return $photo;
+                });
+                return $pet;
+            });
+
             return response()->json(['pets' => $pets], 200);
         } catch (\Exception $e) {
             return $this->errorResponse($e);
         }
     }
+
 
     public function store(Request $request): JsonResponse
     {
@@ -73,7 +82,7 @@ class PetController extends Controller
     public function show(Int $id): JsonResponse
     {
         try {
-            $pet = Pet::findOrFail($id);
+            $pet = Pet::with('photos')->findOrFail($id)->get();
 
             return response()->json([
                 'pet' => $pet

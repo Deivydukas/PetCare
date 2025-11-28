@@ -1,30 +1,101 @@
-import React from 'react'
+import React from "react";
+import { FaPaw, FaTag, FaCalendarAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 export default function PetModal({ pet, onClose }) {
-  if (!pet) return null
+  if (!pet) return null;
 
-  const img = pet.photos?.length ? pet.photos[0].url : null
+  const img = pet.photos?.length ? pet.photos[0].url : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true">
-      <div className="bg-white rounded-lg max-w-2xl w-full p-4 relative">
-        <button onClick={onClose} className="absolute right-3 top-3 text-gray-600">✕</button>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        className="bg-gray-100 rounded-2xl max-w-3xl w-full p-6 relative shadow-2xl"
+      >
+        {/* close */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-gray-600 hover:text-black text-2xl font-bold"
+        >
+          ✕
+        </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            {img ? <img src={img} alt={pet.name} className="w-full h-64 object-cover rounded" /> : <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400">No image</div>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* PHOTO SIDE */}
+          <div className="rounded-xl overflow-hidden bg-gray-300">
+            {img ? (
+              <img
+                src={img}
+                alt={pet.name}
+                className="w-full h-80 object-cover"
+              />
+            ) : (
+              <div className="h-80 flex items-center justify-center text-gray-400">
+                No Image
+              </div>
+            )}
           </div>
-          <div>
-            <h2 className="text-2xl font-bold">{pet.name}</h2>
-            <p className="text-sm text-gray-600 mt-1">{pet.species} {pet.breed && `· ${pet.breed}`}</p>
-            <p className="mt-3">Age: {pet.age ?? 'N/A'}</p>
-            <p className="mt-3">Status: <span className={pet.status === 'adopted' ? 'text-green-600' : 'text-yellow-600'}>{pet.status}</span></p>
-            <div className="mt-4">
-              <button className="bg-primary text-white px-4 py-2 rounded">Request adopt</button>
+
+          {/* DETAILS SIDE */}
+          <div className="text-black font-quicksand">
+            <h2 className="text-3xl font-bold">{pet.name}</h2>
+
+            {/* STATUS BADGE */}
+            <div className="mt-2">
+              {pet.status === "adopted" ? (
+                <span className="flex items-center gap-2 text-green-600 text-lg font-semibold">
+                  <FaCheckCircle /> Adopted
+                </span>
+              ) : (
+                <span className="flex items-center gap-2 text-yellow-600 text-lg font-semibold">
+                  <FaTimesCircle /> Available
+                </span>
+              )}
+            </div>
+
+            {/* INFO ROWS */}
+            <div className="mt-6 space-y-4 text-lg">
+              <div className="flex items-center gap-3">
+                <FaPaw className="text-blue-600" />
+                <span>
+                  Species: <strong>{pet.species}</strong>
+                </span>
+              </div>
+
+              {pet.breed && (
+                <div className="flex items-center gap-3">
+                  <FaTag className="text-blue-600" />
+                  <span>
+                    Breed: <strong>{pet.breed}</strong>
+                  </span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <FaCalendarAlt className="text-blue-600" />
+                <span>
+                  Age: <strong>{pet.age ?? "N/A"}</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* ACTION */}
+            <div className="mt-8 flex justify-end">
+              <button
+                onClick={onClose}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700 transition shadow"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

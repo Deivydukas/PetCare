@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Http\JsonResponse;
+use App\Models\Pet;
 
 class RoomController extends Controller
 {
@@ -31,6 +32,12 @@ class RoomController extends Controller
             return $this->errorResponse($e);
         }
     }
+    public function pets($roomId)
+    {
+        $pet = Pet::with('photos')->where('room_id', $roomId)->get();
+        return response()->json($pet);
+    }
+
 
     /**
      * Show a single room

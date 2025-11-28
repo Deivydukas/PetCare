@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function ShelterRooms() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [rooms, setRooms] = useState([]);
   const [shelter, setShelter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,9 @@ export default function ShelterRooms() {
   if (loading) return <p className="text-white text-center mt-20">Loading...</p>;
   if (!shelter) return <p className="text-white text-center mt-20">Shelter not found</p>;
 
+  const handleRoomClick = (roomId) => {
+    navigate(`/rooms/${roomId}/pets`);
+  };
   return (
     <div className="min-h-screen py-5 bg-gradient-to-br from-blue-900 to-blue-400 text-white">
       <section className="max-w-4xl mx-auto mt-6 px-4">
@@ -35,6 +39,7 @@ export default function ShelterRooms() {
         {rooms.map(room => (
           <div
             key={room.id}
+            onClick={() => handleRoomClick(room.id)}
             className="bg-gray-200 rounded-2xl p-4 text-black shadow-lg transform transition hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
           >
             <div className="w-full h-40 bg-black rounded-2xl mb-4 overflow-hidden">

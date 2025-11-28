@@ -25,6 +25,7 @@ Route::get('/shelters/{shelter}/rooms/{room}', [RoomController::class, 'show']);
 // Route::get('/rooms/{room}/pets',              [PetController::class, 'index']);
 Route::get('/pets/{pet}',                     [PetController::class, 'show']);
 Route::get('/shelters/{shelter}/pets',        [ShelterController::class, 'getPets']);
+Route::get('/rooms/{room}/pets', [RoomController::class, 'pets']);
 Route::get('/shelters/{shelter}/rooms/{room}/pets', [ShelterController::class, 'getPetsFromRoom']);
 Route::get('/health-records',                 [HealthRecordController::class, 'index']);
 Route::get('/diseases',                       [DiseaseController::class, 'index']);
