@@ -82,15 +82,20 @@ class AdoptionRequestController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
         try {
             $validated = $request->validate([
                 'pet_id' => 'required|exists:pets,id',
-                'applicant_name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'status' => 'sometimes|in:pending,approved,rejected'
+                'application_text' => 'required|string|max:1200',
             ]);
 
-            $adoption = AdoptionRequest::create($validated);
+            $adoption = AdoptionRequest::create([
+                'pet_id' => $validated['pet_id'],
+                'applicant_name' => $user->name,
+                'email' => $user->email,
+                'status' => 'pending',
+                'application_text' => $validated['application_text'],
+            ]);
 
             return response()->json([
                 'message' => 'Adoption request created successfully',

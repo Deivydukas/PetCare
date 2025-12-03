@@ -10,7 +10,7 @@ class AdoptionRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['pet_id', 'applicant_name', 'email', 'status'];
+    protected $fillable = ['pet_id', 'applicant_name', 'email', 'status', 'application_text'];
 
     public function pet()
     {

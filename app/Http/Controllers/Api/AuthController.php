@@ -174,4 +174,35 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid token'], 401);
         }
     }
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user(); // currently authenticated user
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+            ]);
+
+            $user->update($validated);
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Invalid input data',
+                'details' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update profile',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

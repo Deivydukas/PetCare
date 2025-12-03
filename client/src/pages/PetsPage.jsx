@@ -94,7 +94,7 @@ export default function PetsPage() {
   return (
     <div className="min-h-screen py-5 bg-gradient-to-br from-blue-900 to-blue-400 text-white">
       <section className="max-w-5xl mx-auto px-4">
-        <h1 className="text-4xl font-bold mb-6 flex justify-between items-center">
+        <h1 className="text-xl font-bold mb-6 flex justify-between items-center">
           Pets
           <button
             className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded flex items-center gap-2"

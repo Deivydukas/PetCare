@@ -38,6 +38,7 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me',     [AuthController::class, 'me']);
+        Route::put('/profile', [AuthController::class, 'updateProfile']);
         // Adoption requests
         Route::post('/adoptions',                [AdoptionRequestController::class, 'store']);
         Route::get('/adoptions/{adoption}',      [AdoptionRequestController::class, 'show']);
@@ -47,6 +48,9 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
         Route::post('/comments',                 [CommentController::class, 'store']);
         Route::put('/comments/{id}',             [CommentController::class, 'update']);
         Route::delete('/comments/{id}',          [CommentController::class, 'destroy']);
+
+        Route::get('/adoptions',                  [AdoptionRequestController::class, 'index']);
+
 
         // User account
         // Route::put('/users/{id}',                [UserController::class, 'update']);
@@ -69,7 +73,6 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
         Route::put('/pets/{pet}/status',          [PetController::class, 'markAsAdopted']);
 
         // Adoption requests
-        Route::get('/adoptions',                  [AdoptionRequestController::class, 'index']);
     });
 
     Route::middleware('role:admin')->group(function () {
@@ -81,6 +84,7 @@ Route::group(['middleware' => 'jwt.cookie', 'jwt.auth'], function () {
 
         // Users management
         Route::get('/users',                 [UserController::class, 'index']);
+        Route::get('/users/{id}',            [UserController::class, 'show']);
         Route::post('/users',                [UserController::class, 'store']);
         Route::delete('/users/{id}',         [UserController::class, 'destroy']);
         Route::put('/users/{id}',     [UserController::class, 'update']);

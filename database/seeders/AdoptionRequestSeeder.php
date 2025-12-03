@@ -24,6 +24,7 @@ class AdoptionRequestSeeder extends Seeder
             'applicant_name' => 'John Doe',
             'email' => 'Jhondoe1@gmail.com',
             'status' => 'pending',
+            'application_text' => 'I would love to adopt this pet because I have a big yard and lots of love to give.'
         ]);
     }
 }

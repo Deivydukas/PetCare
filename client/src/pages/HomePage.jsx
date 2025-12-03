@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen py-5 bg-gradient-to-br from-blue-900 to-blue-400 text-white">
-      {/* SEARCH SECTION */}
+      {/* SEARCH SECTION
       <section className="max-w-4xl mx-auto mt-6 px-4">
         <div className="font-quicksand flex gap-3">
           <input
@@ -27,7 +27,7 @@ export default function Home() {
             Search
           </button>
         </div>
-      </section>
+      </section> */}
 
       {/* SHELTER GRID */}
       <section className="font-quicksand max-w-4xl mx-auto mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12 px-4 pb-24">

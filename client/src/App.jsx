@@ -12,6 +12,7 @@ import RoomPets from "./pages/RoomPets";
 import UsersPage from "./pages/UsersPage";
 import SheltersPage from "./pages/SheltersPage";
 import PetsPage from "./pages/PetsPage";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -20,31 +21,43 @@ export default function App() {
       <main className="flex-1 container mx-auto px-4 py-6">
         <Routes>
           <Route path="/" element={<Homepage />} />
-           <Route path="/login" element={<Login />} />
-            <Route path="/admin" element={
-              <PrivateRoute roleRequired="admin">
-                <AdminDashboard />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/users" element={
-              <PrivateRoute roleRequired="admin">
-                <UsersPage />
-              </PrivateRoute>
-            } />
-            <Route path="/admin/shelters" element={
-              <PrivateRoute roleRequired="admin">
-                <SheltersPage/>
-              </PrivateRoute>
-            } />
-            <Route path="/admin/pets" element={
-              <PrivateRoute roleRequired="admin">
-                <PetsPage/>
-              </PrivateRoute>
-            } />
-           <Route path="/shelters/:id" element={<ShelterRooms />} />
-           <Route path="/register" element={<Register />} />
-           <Route path="/rooms/:roomId/pets" element={<RoomPets />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          {/* Admin routes */}
+          <Route path="/admin" element={
+            <PrivateRoute roleRequired="admin">
+              <AdminDashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/users" element={
+            <PrivateRoute roleRequired="admin">
+              <UsersPage />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/shelters" element={
+            <PrivateRoute roleRequired="admin">
+              <SheltersPage />
+            </PrivateRoute>
+          } />
+          <Route path="/admin/pets" element={
+            <PrivateRoute roleRequired="admin">
+              <PetsPage />
+            </PrivateRoute>
+          } />
+
+          {/* Shelter and Room routes */}
+          <Route path="/shelters/:id" element={<ShelterRooms />} />
+          <Route path="/rooms/:roomId/pets" element={<RoomPets />} />
+
+          {/* Profile route */}
+          <Route path="/profile" element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          } />
         </Routes>
+
       </main>
 
       <Footer />

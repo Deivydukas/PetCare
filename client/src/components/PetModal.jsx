@@ -1,7 +1,35 @@
 import React from "react";
 import { FaPaw, FaTag, FaCalendarAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import { useState } from "react";
+
 export default function PetModal({ pet, onClose }) {
+  const { token, user } = useAuth();
+  const [applicationText, setApplicationText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const adoptPet = async () => {
+    if (!applicationText.trim()) return setMessage("Explain why you want to adopt");
+
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        "http://localhost:8000/api/adoptions",
+        { pet_id: pet.id, application_text: applicationText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage("Application sent successfully");
+    } catch (err) {
+      setMessage(err.response?.data?.error || "Failed to submit request");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+// export default function PetModal({ pet, onClose }) {
   if (!pet) return null;
 
   const img = pet.photos?.length ? pet.photos[0].url : null;
@@ -84,15 +112,39 @@ export default function PetModal({ pet, onClose }) {
               </div>
             </div>
 
-            {/* ACTION */}
-            <div className="mt-8 flex justify-end">
+            {/* ACTIONS */}
+            <div className="mt-8 space-y-4">
+              {user?.role === "user" && pet.status === "available" && (
+                <div className="space-y-3">
+                  <textarea
+                    className="w-full border p-2 rounded"
+                    rows="4"
+                    placeholder="Why do you want to adopt this pet?"
+                    onChange={e => setApplicationText(e.target.value)}
+                  />
+
+                  <button
+                    disabled={loading}
+                    onClick={adoptPet}
+                    className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {loading ? "Sending..." : "Apply for Adoption"}
+                  </button>
+
+                  {message && (
+                    <p className="text-center text-black font-semibold">{message}</p>
+                  )}
+                </div>
+              )}
+
               <button
                 onClick={onClose}
-                className="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700 transition shadow"
+                className="w-full bg-gray-300 py-3 rounded-xl hover:bg-gray-400"
               >
                 Close
               </button>
             </div>
+
           </div>
         </div>
       </div>
